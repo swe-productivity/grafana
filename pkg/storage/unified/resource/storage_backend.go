@@ -405,7 +405,7 @@ func (k *kvStorageBackend) ListIterator(ctx context.Context, req *resourcepb.Lis
 			Namespace: namespace,
 			Name:      req.Options.Key.Name,
 		}
-		listOptions.EndKeyPrefix= PrefixRangeEnd(listOptions.StartKey.Prefix())
+		listOptions.EndKeyPrefix = PrefixRangeEnd(listOptions.StartKey.Prefix())
 	}
 
 	// We set the listRV to the last event resource version.
@@ -439,9 +439,9 @@ func (k *kvStorageBackend) ListIterator(ctx context.Context, req *resourcepb.Lis
 	defer stop()
 
 	iter := kvListIterator{
-		listRV:         listRV,
-		endKey:         listOptions.EndKeyPrefix,
-		next:           next,
+		listRV: listRV,
+		endKey: listOptions.EndKeyPrefix,
+		next:   next,
 	}
 	err := cb(&iter)
 	if err != nil {
