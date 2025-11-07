@@ -702,14 +702,6 @@ var (
 			Owner:        grafanaDatavizSquad,
 		},
 		{
-			Name:         "logsInfiniteScrolling",
-			Description:  "Enables infinite scrolling for the Logs panel in Explore and Dashboards",
-			Stage:        FeatureStageGeneralAvailability,
-			Expression:   "true",
-			FrontendOnly: true,
-			Owner:        grafanaObservabilityLogsSquad,
-		},
-		{
 			Name:         "logRowsPopoverMenu",
 			Description:  "Enable filtering menu displayed when text of a log line is selected",
 			Stage:        FeatureStageGeneralAvailability,
