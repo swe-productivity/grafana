@@ -705,6 +705,10 @@ export interface FeatureToggles {
   */
   timeRangePan?: boolean;
   /**
+  * Enables new keyboard shortcuts for time range zoom operations
+  */
+  newTimeRangeZoomShortcuts?: boolean;
+  /**
   * Disables the log limit restriction for Azure Monitor when true. The limit is enabled by default.
   * @default false
   */
