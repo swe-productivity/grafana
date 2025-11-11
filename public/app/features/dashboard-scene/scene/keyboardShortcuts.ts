@@ -279,10 +279,6 @@ export function setupKeyboardShortcuts(scene: DashboardScene) {
   return () => {
     keybindings.removeAll();
     panelAttentionSubscription.unsubscribe();
-    if (debugListener) {
-      document.removeEventListener('keydown', debugListener);
-      document.removeEventListener('keypress', debugListener);
-    }
   };
 }
 
@@ -296,14 +292,12 @@ function handleZoom(scene: DashboardScene, scale: number) {
   const to = center + newTimespan / 2;
   const from = center - newTimespan / 2;
 
-  timeRange.setState({
-    value: {
+  timeRange.onTimeRangeChange({
+    from: dateTime(from),
+    to: dateTime(to),
+    raw: {
       from: dateTime(from),
       to: dateTime(to),
-      raw: {
-        from: dateTime(from),
-        to: dateTime(to),
-      },
     },
   });
 }
