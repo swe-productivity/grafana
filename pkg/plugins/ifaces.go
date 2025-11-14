@@ -93,7 +93,6 @@ func (f FSType) CDN() bool {
 	return f == FSTypeCDN
 }
 
-
 type FSRemover interface {
 	Remove() error
 }
