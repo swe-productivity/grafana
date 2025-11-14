@@ -11035,6 +11035,10 @@
     "pie-chart-type-options": {
       "label-donut": "Donut",
       "label-pie": "Pie"
+    },
+    "suggestions": {
+      "donut": "Donut chart",
+      "pie": "Pie chart"
     }
   },
   "playlist": {
@@ -12961,7 +12965,7 @@
       "label-standard": "Standard"
     },
     "suggestions": {
-      "stat-aggregated-color-background": "Stat - color background",
+      "stat-color-background": "Stat - color background",
       "stat-discrete-values": "Stat - discrete values",
       "stat-discrete-values-color-background": "Stat - discrete values - color background",
       "stat-single-string": "Stat - single string"
