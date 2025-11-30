@@ -262,3 +262,72 @@ public/mockServiceWorker.js
 
 # Ignore grafana/hippocampus local cache folder
 .hippo
+
+# ===============================
+# General OS / editor clutter
+# ===============================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+
+# ===============================
+# Node.js / Project Artifacts
+# ===============================
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+
+# ===============================
+# Editor / IDE state
+# ===============================
+.vscode/
+.cursor/
+.idea/
+.history/
+*.code-workspace
+
+# ===============================
+# AI Tool Artifacts
+# ===============================
+# Specstory local logs
+.specstory/
+specstory_history.zip
+
+# Cursor temporary files
+.cursorrun/
+cursor-agent.json
+
+# Claude or Anthropic session caches
+claude_sessions/
+claude_logs/
+claude_cache/
+claude_output.json
+
+# Copilot / OpenAI / ChatGPT transient files
+copilot-agent/
+copilot-logs/
+openai_tmp/
+chatgpt_logs/
+ai_scratchpad/
+ai_output.txt
+
+# General AI-generated metadata
+*.ai.md
+*.ai.json
+*AI_LOG*
+*AI_TMP*
+*prompt_dump*
+
+# ===============================
+# Test / temporary workspace
+# ===============================
+tmp/
+scratch/
+notes/drafts/
+__pycache__/
+*.pytest_cache/
