@@ -92,6 +92,14 @@ describe('NavToolbarActions', () => {
       expect(await screen.findByTestId(selectors.pages.Dashboard.DashNav.playlistControls.stop)).toBeInTheDocument();
       await userEvent.click(await screen.findByTestId(selectors.pages.Dashboard.DashNav.playlistControls.stop));
       expect(playlistSrv.stop).toHaveBeenCalledTimes(1);
+
+      // Previous dashboard (left arrow hotkey)
+      await userEvent.keyboard('{ArrowLeft}');
+      expect(playlistSrv.prev).toHaveBeenCalledTimes(2);
+
+      // Next dashboard (right arrow hotkey)
+      await userEvent.keyboard('{ArrowRight}');
+      expect(playlistSrv.next).toHaveBeenCalledTimes(2);
     });
 
     it('Should hide the playlist controls when it is not playing', async () => {
