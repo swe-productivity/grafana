@@ -1,5 +1,6 @@
 import { css } from '@emotion/css';
 import { memo, ReactNode, useEffect, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 import { GrafanaTheme2, store } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -90,6 +91,14 @@ export function ToolbarActions({ dashboard }: Props) {
   // Get the repository for the dashboard's folder
   const { isReadOnlyRepo, repoType } = useGetResourceRepositoryView({
     folderName: meta.folderUid,
+  });
+
+  useHotkeys('left', () => {
+    playlistSrv.prev();
+  });
+
+  useHotkeys('right', () => {
+    playlistSrv.next();
   });
 
   if (!isEditingPanel) {

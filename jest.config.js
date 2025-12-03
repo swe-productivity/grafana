@@ -21,6 +21,7 @@ const esModules = [
   'mimic-function',
   'monaco-promql',
   'react-calendar',
+  'react-hotkeys-hook',
   '@kusto/monaco-kusto',
   'monaco-editor',
   '@msagl',
