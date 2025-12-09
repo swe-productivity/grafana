@@ -706,7 +706,7 @@ describe('transformSaveModelToScene', () => {
 
       expect(repeater.state.maxPerRow).toBe(8);
       expect(repeater.state.variableName).toBe('server');
-      expect(repeater.state.width).toBe(24);
+      expect(repeater.state.width).toBe(8);
       expect(repeater.state.height).toBe(8);
       expect(repeater.state.repeatDirection).toBe('h');
       expect(repeater.state.maxPerRow).toBe(8);
@@ -730,27 +730,6 @@ describe('transformSaveModelToScene', () => {
       expect(repeater.state.width).toBe(8);
       expect(repeater.state.height).toBe(8);
       expect(repeater.state.repeatDirection).toBe('v');
-      expect(repeater.state.maxPerRow).toBe(8);
-    });
-
-    it('When horizontal repeat is set should modify the width to 24', () => {
-      const panel = {
-        title: '',
-        type: 'text-plugin-34',
-        gridPos: { x: 0, y: 0, w: 8, h: 8 },
-        repeat: 'server',
-        repeatDirection: 'h',
-        maxPerRow: 8,
-      };
-
-      const gridItem = buildGridItemForPanel(new PanelModel(panel));
-      const repeater = gridItem as DashboardGridItem;
-
-      expect(repeater.state.maxPerRow).toBe(8);
-      expect(repeater.state.variableName).toBe('server');
-      expect(repeater.state.width).toBe(24);
-      expect(repeater.state.height).toBe(8);
-      expect(repeater.state.repeatDirection).toBe('h');
       expect(repeater.state.maxPerRow).toBe(8);
     });
 
