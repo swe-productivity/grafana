@@ -73,3 +73,57 @@ func TestCreateDashboardSnapshot_DashboardNotFound(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "Dashboard not found", response["message"])
 }
+
+func TestCreateDashboardSnapshot_MissingUID(t *testing.T) {
+	mockService := &MockService{}
+	cfg := dashboardsnapshot.SnapshotSharingOptions{
+		SnapshotsEnabled: true,
+		ExternalEnabled:  false,
+	}
+	testUser := &user.SignedInUser{
+		UserID: 1,
+		OrgID:  1,
+		Login:  "testuser",
+		Name:   "Test User",
+		Email:  "test@example.com",
+	}
+	dashboard := &common.Unstructured{}
+	dashboardData := map[string]interface{}{
+		"id":    123,
+		"title": "Test Dashboard",
+	}
+	dashboardBytes, _ := json.Marshal(dashboardData)
+	_ = json.Unmarshal(dashboardBytes, dashboard)
+
+	cmd := CreateDashboardSnapshotCommand{
+		DashboardCreateCommand: dashboardsnapshot.DashboardCreateCommand{
+			Dashboard: dashboard,
+			Name:      "Test Snapshot",
+		},
+	}
+
+	mockService.On("ValidateDashboardExists", mock.Anything, int64(1), "").
+		Return(dashboards.ErrDashboardIdentifierNotSet)
+
+	req, _ := http.NewRequest("POST", "/api/snapshots", nil)
+	req = req.WithContext(identity.WithRequester(req.Context(), testUser))
+
+	recorder := httptest.NewRecorder()
+	ctx := &contextmodel.ReqContext{
+		Context: &web.Context{
+			Req:  req,
+			Resp: web.NewResponseWriter("POST", recorder),
+		},
+		SignedInUser: testUser,
+		Logger:       log.NewNopLogger(),
+	}
+
+	CreateDashboardSnapshot(ctx, cfg, cmd, mockService)
+
+	mockService.AssertExpectations(t)
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	var response map[string]interface{}
+	err := json.Unmarshal(recorder.Body.Bytes(), &response)
+	require.NoError(t, err)
+	assert.Equal(t, "Failed to get dashboard", response["message"])
+}

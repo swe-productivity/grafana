@@ -56,6 +56,7 @@ title: 'Snapshot API'
         },
         "timezone":"browser",
         "title":"Home",
+        "uid": "d5f5654b-476c-82f6-24c7-bbfaefbef899",
         "version":5
         },
       "expires": 3600
@@ -64,7 +65,7 @@ title: 'Snapshot API'
 
 JSON Body schema:
 
-- **dashboard** – Required. The complete dashboard model.
+- **dashboard** – Required. The complete dashboard model. The dashboard object must include a **uid** field, which is required.
 - **name** – Optional. snapshot name
 - **expires** - Optional. When the snapshot should expire in seconds. 3600 is 1 hour, 86400 is 1 day. Default is never to expire.
 - **external** - Optional. Save the snapshot on an external server rather than locally. Default is `false`.
