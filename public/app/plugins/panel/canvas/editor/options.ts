@@ -59,6 +59,9 @@ export const optionBuilder: OptionSuppliers = {
         editor: ResourceDimensionEditor,
         settings: {
           resourceType: 'image',
+          // Signal that we want to filter for string fields only
+          // The actual filter will be created in ResourceDimensionEditor with access to current value
+          filterStringFieldsOnly: true,
         },
       })
       .addCustomEditor({

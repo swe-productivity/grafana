@@ -1,7 +1,13 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import * as React from 'react';
 
-import { FieldNamePickerConfigSettings, StandardEditorProps, StandardEditorsRegistryItem } from '@grafana/data';
+import {
+  Field,
+  FieldNamePickerConfigSettings,
+  FieldType,
+  StandardEditorProps,
+  StandardEditorsRegistryItem,
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema';
 import { InlineField, InlineFieldRow, RadioButtonGroup } from '@grafana/ui';
@@ -84,6 +90,31 @@ export const ResourceDimensionEditor = (
     }
   }
 
+  // Create filter function that has access to current value
+  const fieldFilter = useMemo(() => {
+    // Use provided filter function if available
+    if (item.settings?.fieldFilter) {
+      return item.settings.fieldFilter;
+    }
+    // If filterStringFieldsOnly is true, create a filter that includes string fields and current selection
+    if (item.settings?.filterStringFieldsOnly) {
+      const currentFieldValue = value?.field;
+      return (field: Field) => {
+        // Include string fields
+        if (field.type === FieldType.string) {
+          return true;
+        }
+        // Include the currently selected field even if it's not a string
+        if (currentFieldValue && (field.name === currentFieldValue || field.state?.displayName === currentFieldValue)) {
+          return true;
+        }
+        return false;
+      };
+    }
+    // No filter
+    return undefined;
+  }, [item.settings?.fieldFilter, item.settings?.filterStringFieldsOnly, value?.field]);
+
   return (
     <>
       {showSourceRadio && (
@@ -108,7 +139,13 @@ export const ResourceDimensionEditor = (
               context={context}
               value={value.field ?? ''}
               onChange={onFieldChange}
-              item={dummyFieldSettings}
+              item={{
+                ...dummyFieldSettings,
+                settings: {
+                  ...dummyFieldSettings.settings,
+                  filter: fieldFilter,
+                },
+              }}
             />
           </InlineField>
         </InlineFieldRow>

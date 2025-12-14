@@ -61,6 +61,10 @@ export interface ResourceDimensionOptions {
   // If you want your icon to be driven by value of a field
   showSourceRadio?: boolean;
   maxFiles?: number;
+  // Filter function for the field picker (used when mode is Field)
+  fieldFilter?: (field: Field) => boolean;
+  // If true, filter to only show string fields (filter will be created with current value)
+  filterStringFieldsOnly?: boolean;
 }
 
 export enum ResourceFolderName {
