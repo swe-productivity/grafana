@@ -706,7 +706,7 @@ describe('transformSaveModelToScene', () => {
 
       expect(repeater.state.maxPerRow).toBe(8);
       expect(repeater.state.variableName).toBe('server');
-      expect(repeater.state.width).toBe(24);
+      expect(repeater.state.width).toBe(8);
       expect(repeater.state.height).toBe(8);
       expect(repeater.state.repeatDirection).toBe('h');
       expect(repeater.state.maxPerRow).toBe(8);
@@ -748,7 +748,7 @@ describe('transformSaveModelToScene', () => {
 
       expect(repeater.state.maxPerRow).toBe(8);
       expect(repeater.state.variableName).toBe('server');
-      expect(repeater.state.width).toBe(24);
+      expect(repeater.state.width).toBe(8);
       expect(repeater.state.height).toBe(8);
       expect(repeater.state.repeatDirection).toBe('h');
       expect(repeater.state.maxPerRow).toBe(8);

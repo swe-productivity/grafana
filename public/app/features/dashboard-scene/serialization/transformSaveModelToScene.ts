@@ -498,7 +498,7 @@ export function buildGridItemForPanel(panel: PanelModel): DashboardGridItem {
     key: `grid-item-${panel.id}`,
     x: panel.gridPos.x,
     y: panel.gridPos.y,
-    width: repeatOptions.repeatDirection === 'h' ? 24 : panel.gridPos.w,
+    width: panel.gridPos.w,
     height: panel.gridPos.h,
     itemHeight: panel.gridPos.h,
     body,
