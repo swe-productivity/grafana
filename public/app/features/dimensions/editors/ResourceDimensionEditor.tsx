@@ -1,13 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import * as React from 'react';
 
-import {
-  Field,
-  FieldNamePickerConfigSettings,
-  FieldType,
-  StandardEditorProps,
-  StandardEditorsRegistryItem,
-} from '@grafana/data';
+import { Field, FieldNamePickerConfigSettings, StandardEditorProps, StandardEditorsRegistryItem } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ResourceDimensionConfig, ResourceDimensionMode } from '@grafana/schema';
 import { InlineField, InlineFieldRow, RadioButtonGroup } from '@grafana/ui';
@@ -90,30 +84,25 @@ export const ResourceDimensionEditor = (
     }
   }
 
-  // Create filter function that has access to current value
+  // Create filter function that filters by field type and includes current selection
   const fieldFilter = useMemo(() => {
-    // Use provided filter function if available
-    if (item.settings?.fieldFilter) {
-      return item.settings.fieldFilter;
+    const filteredFieldType = item.settings?.filteredFieldType;
+    if (!filteredFieldType) {
+      return undefined;
     }
-    // If filterStringFieldsOnly is true, create a filter that includes string fields and current selection
-    if (item.settings?.filterStringFieldsOnly) {
-      const currentFieldValue = value?.field;
-      return (field: Field) => {
-        // Include string fields
-        if (field.type === FieldType.string) {
-          return true;
-        }
-        // Include the currently selected field even if it's not a string
-        if (currentFieldValue && (field.name === currentFieldValue || field.state?.displayName === currentFieldValue)) {
-          return true;
-        }
-        return false;
-      };
-    }
-    // No filter
-    return undefined;
-  }, [item.settings?.fieldFilter, item.settings?.filterStringFieldsOnly, value?.field]);
+    const currentFieldValue = value?.field;
+    return (field: Field) => {
+      // Include fields matching the filtered type
+      if (field.type === filteredFieldType) {
+        return true;
+      }
+      // Include the currently selected field even if it doesn't match the type
+      if (currentFieldValue && (field.name === currentFieldValue || field.state?.displayName === currentFieldValue)) {
+        return true;
+      }
+      return false;
+    };
+  }, [item.settings?.filteredFieldType, value?.field]);
 
   return (
     <>
