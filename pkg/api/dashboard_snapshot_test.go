@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -369,6 +370,166 @@ func TestGetDashboardSnapshotFailure(t *testing.T) {
 
 			assert.Equal(t, http.StatusForbidden, sc.resp.Code, "BODY: "+sc.resp.Body.String())
 		}, sqlmock)
+}
+
+func TestHTTPServer_CreateDashboardSnapshot(t *testing.T) {
+	setup := func(t *testing.T) *webtest.Server {
+		t.Helper()
+
+		return SetupAPITestServer(t, func(hs *HTTPServer) {
+			cfg := setting.NewCfg()
+			cfg.SnapshotEnabled = true
+			cfg.SnapshotPublicMode = false
+			hs.Cfg = cfg
+			hs.dashboardsnapshotsService = dashboardsnapshots.NewMockService(t)
+			hs.AccessControl = acimpl.ProvideAccessControl(featuremgmt.WithFeatures())
+		})
+	}
+
+	allowedUser := userWithPermissions(1, []accesscontrol.Permission{
+		{Action: dashboards.ActionSnapshotsCreate},
+		{Action: dashboards.ActionDashboardsRead, Scope: "dashboards:uid:d5f5654b-456c-42f6-84c7-bbfaefbef890"},
+	})
+
+	t.Run("Should return 400 when dashboard UID is missing", func(t *testing.T) {
+		server := setup(t)
+
+		// Create a request body with a dashboard that doesn't have a UID
+		requestBody := `{
+			"dashboard": {
+				"annotations": {
+					"list": [
+						{
+							"name": "Annotations & Alerts",
+							"enable": true,
+							"iconColor": "rgba(0, 211, 255, 1)",
+							"type": "dashboard",
+							"builtIn": 1,
+							"hide": true,
+							"snapshotData": []
+						}
+					]
+				},
+				"editable": true,
+				"fiscalYearStartMonth": 0,
+				"graphTooltip": 0,
+				"id": 1030,
+				"links": [],
+				"panels": [],
+				"preload": false,
+				"refresh": "",
+				"schemaVersion": 41,
+				"tags": [],
+				"templating": {
+					"list": []
+				},
+				"time": {
+					"from": "2025-03-21T12:28:01.056Z",
+					"to": "2025-03-21T18:28:01.056Z"
+				},
+				"timepicker": {},
+				"timezone": "",
+				"title": "Empty dashboard",
+				"version": 3
+			},
+			"name": "Empty dashboard",
+			"expires": 604800,
+			"external": false
+		}`
+
+		res, err := server.SendJSON(webtest.RequestWithSignedInUser(
+			server.NewPostRequest("/api/snapshots", strings.NewReader(requestBody)),
+			allowedUser,
+		))
+
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+
+		// Read the response body to verify the error message
+		var responseBody map[string]interface{}
+		err = json.NewDecoder(res.Body).Decode(&responseBody)
+		require.NoError(t, err)
+		require.NoError(t, res.Body.Close())
+
+		// Verify the error message matches ErrDashboardIdentifierNotSet
+		assert.Equal(t, dashboards.ErrDashboardIdentifierNotSet.Reason, responseBody["message"])
+	})
+
+	t.Run("Should not return 400 when dashboard UID is provided", func(t *testing.T) {
+		mockService := dashboardsnapshots.NewMockService(t)
+		// Set up mock expectations for ValidateDashboardExists and CreateDashboardSnapshot
+		mockService.On("ValidateDashboardExists", mock.Anything, int64(1), "d5f5654b-456c-42f6-84c7-bbfaefbef890").
+			Return(nil)
+		mockService.On("CreateDashboardSnapshot", mock.Anything, mock.AnythingOfType("*dashboardsnapshots.CreateDashboardSnapshotCommand")).
+			Return(&dashboardsnapshots.DashboardSnapshot{
+				Key:       "test-key",
+				DeleteKey: "test-delete-key",
+			}, nil)
+
+		server := SetupAPITestServer(t, func(hs *HTTPServer) {
+			cfg := setting.NewCfg()
+			cfg.SnapshotEnabled = true
+			cfg.SnapshotPublicMode = false
+			hs.Cfg = cfg
+			hs.dashboardsnapshotsService = mockService
+			hs.AccessControl = acimpl.ProvideAccessControl(featuremgmt.WithFeatures())
+		})
+
+		// Create a request body with a dashboard that has a UID
+		requestBody := `{
+			"dashboard": {
+				"annotations": {
+					"list": [
+						{
+							"name": "Annotations & Alerts",
+							"enable": true,
+							"iconColor": "rgba(0, 211, 255, 1)",
+							"type": "dashboard",
+							"builtIn": 1,
+							"hide": true,
+							"snapshotData": []
+						}
+					]
+				},
+				"editable": true,
+				"fiscalYearStartMonth": 0,
+				"graphTooltip": 0,
+				"id": 1030,
+				"links": [],
+				"panels": [],
+				"preload": false,
+				"refresh": "",
+				"schemaVersion": 41,
+				"tags": [],
+				"templating": {
+					"list": []
+				},
+				"time": {
+					"from": "2025-03-21T12:28:01.056Z",
+					"to": "2025-03-21T18:28:01.056Z"
+				},
+				"timepicker": {},
+				"timezone": "",
+				"title": "Empty dashboard",
+				"uid": "d5f5654b-456c-42f6-84c7-bbfaefbef890",
+				"version": 3
+			},
+			"name": "Empty dashboard",
+			"expires": 604800,
+			"external": false
+		}`
+
+		req := server.NewPostRequest("/api/snapshots", strings.NewReader(requestBody))
+		req = webtest.RequestWithSignedInUser(req, allowedUser)
+
+		res, err := server.SendJSON(req)
+
+		require.NoError(t, err)
+		// The actual status code depends on the CreateDashboardSnapshot service implementation
+		// but it should not be 400 Bad Request (which would indicate missing UID)
+		assert.NotEqual(t, http.StatusBadRequest, res.StatusCode, "Should not return 400 when UID is provided")
+		require.NoError(t, res.Body.Close())
+	})
 }
 
 func buildHttpServer(d dashboardsnapshots.Service, snapshotEnabled bool) *HTTPServer {

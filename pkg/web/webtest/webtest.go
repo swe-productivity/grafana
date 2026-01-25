@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/grafana/grafana/pkg/api/routing"
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/contexthandler/ctxkey"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
@@ -115,6 +116,8 @@ func RequestWithWebContext(req *http.Request, c *contextmodel.ReqContext) *http.
 }
 
 func RequestWithSignedInUser(req *http.Request, usr *user.SignedInUser) *http.Request {
+	// Set up the identity in the request context for identity.GetRequester to work
+	req = req.WithContext(identity.WithRequester(req.Context(), usr))
 	return RequestWithWebContext(req, &contextmodel.ReqContext{
 		SignedInUser: usr,
 		IsSignedIn:   true,
@@ -148,6 +151,11 @@ func requestContextMiddleware() web.Middleware {
 				c.PerfmonTimer = ctx.PerfmonTimer
 				c.LookupTokenErr = ctx.LookupTokenErr
 				c.UseSessionStorageRedirect = ctx.UseSessionStorageRedirect
+
+				// Also set up the identity in the request context for identity.GetRequester to work
+				if ctx.SignedInUser != nil {
+					r = r.WithContext(identity.WithRequester(r.Context(), ctx.SignedInUser))
+				}
 			}
 
 			next.ServeHTTP(w, r)
