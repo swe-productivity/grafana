@@ -4,6 +4,8 @@ import { behaviors, sceneGraph, SceneTimeRange } from '@grafana/scenes';
 import { DashboardCursorSync } from '@grafana/schema';
 import { appEvents } from 'app/core/app_events';
 import { KeybindingSet } from 'app/core/services/KeybindingSet';
+import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
+import { KioskMode } from 'app/types/dashboard';
 
 import { DashboardScene } from './DashboardScene';
 import { setupKeyboardShortcuts } from './keyboardShortcuts';
@@ -394,6 +396,38 @@ describe('setupKeyboardShortcuts', () => {
         // Should not call onTimeRangeChange when timespan is 0
         expect(mockTimeRange.onTimeRangeChange).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('kiosk mode shortcuts', () => {
+    beforeEach(() => {
+      const mockSceneWithKioskMode = new DashboardScene({
+        title: 'Test Dashboard',
+        uid: 'test-uid',
+        $timeRange: new SceneTimeRange({ from: 'now-6h', to: 'now' }),
+        $behaviors: [mockCursorSync],
+      });
+      mockSceneWithKioskMode.setState({ kioskMode: KioskMode.Full });
+
+      setupKeyboardShortcuts(mockSceneWithKioskMode);
+    });
+
+    it('should call function to switch to previous dashboard in playlist', () => {
+      const leftBinding = mockKeybindingSet.addBinding.mock.calls.find((call) => call[0].key === 'Left');
+      const handler = leftBinding![0].onTrigger;
+
+      handler();
+
+      expect(playlistSrv.prev()).toHaveBeenCalled();
+    });
+
+    it('should call function to switch to next dashboard in playlist', () => {
+      const rightBinding = mockKeybindingSet.addBinding.mock.calls.find((call) => call[0].key === 'Right');
+      const handler = rightBinding![0].onTrigger;
+
+      handler();
+
+      expect(playlistSrv.next()).toHaveBeenCalled();
     });
   });
 });

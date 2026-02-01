@@ -63,5 +63,16 @@ test.describe(
 
       await expect(page.getByTestId(selectors.components.PanelInspector.Json.content)).toBeHidden();
     });
+
+    test('should navigate between pages in playlist kiosk mode', async ({ page, dashboardPage, selectors }) => {
+      const playlistPage = await page.goto('/playlists');
+      // await playlistPage.getByGrafanaSelector(selectors.components.);
+
+      // Press Right to go to next dashboard, check title of dashboard
+      await page.keyboard.press('Right');
+
+      // Press Left to go to previous dashboard, check title of dashboard
+      await page.keyboard.press('Left');
+    });
   }
 );
