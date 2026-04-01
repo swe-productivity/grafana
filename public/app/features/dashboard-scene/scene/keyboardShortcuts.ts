@@ -5,6 +5,7 @@ import { appEvents } from 'app/core/app_events';
 import { KeybindingSet } from 'app/core/services/KeybindingSet';
 import { contextSrv } from 'app/core/services/context_srv';
 import { InspectTab } from 'app/features/inspector/types';
+import { playlistSrv } from 'app/features/playlist/PlaylistSrv';
 import { AccessControlAction } from 'app/types/accessControl';
 
 import { shareDashboardType } from '../../dashboard/components/ShareModal/utils';
@@ -25,6 +26,7 @@ export function setupKeyboardShortcuts(scene: DashboardScene) {
   let vizPanelPathId: string | null = null;
 
   const canEdit = scene.canEditDashboard();
+  const kioskMode = scene.state.kioskMode;
 
   const panelAttentionSubscription = appEvents.subscribe(SetPanelAttentionEvent, (event) => {
     if (typeof event.payload.panelId === 'string') {
@@ -281,6 +283,22 @@ export function setupKeyboardShortcuts(scene: DashboardScene) {
         } else if (scene.state.body instanceof RowsLayoutManager) {
           scene.state.body.expandAllRows();
         }
+      },
+    });
+  }
+
+  if (kioskMode) {
+    keybindings.addBinding({
+      key: 'Left',
+      onTrigger: () => {
+        playlistSrv.prev();
+      },
+    });
+
+    keybindings.addBinding({
+      key: 'Right',
+      onTrigger: () => {
+        playlistSrv.next();
       },
     });
   }
